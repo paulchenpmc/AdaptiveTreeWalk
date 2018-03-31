@@ -67,11 +67,8 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
   copy(begin(stationsArr), end(stationsArr), begin(tempStationsArr));
 
   int fractionOfTree = NUM_STATIONS / (pow(2, startingLevel));
-  // cout << "Entered probetree" << endl;
   int ignoreSubtreeArr[NUM_STATIONS] = {0};
   while (atw.successfulProbes != stationsReady) {
-    // cout << "Begin loop successfulProbes: " << atw.successfulProbes << "  stationsready: " << stationsReady<< endl;
-    // cout << "Begin loop Tree fraction: " << fractionOfTree << endl;
     for (int subtree = 0; subtree < (NUM_STATIONS/fractionOfTree); subtree++) {
       int framesReady = 0;
       int successIndex = 0;
@@ -91,14 +88,10 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
         for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
           ignoreSubtreeArr[i] = 1;
         }
-        // cout << "success index: " << successIndex << endl;
       } else if (framesReady == 2) {
         atw.collisionProbes++;
       }
-      // cout << "chunk " << subtree+1 << " framesReady: " << framesReady << endl;
     }
-    // cout << "End loop successfulProbes: " << atw.successfulProbes << "  stationsready: " << stationsReady << endl;
-    // cout << "End loop Tree fraction after division: " << fractionOfTree << endl << endl;
     fractionOfTree /= 2;
   }
   return atw;
@@ -106,22 +99,34 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
 
 // Runs testing simulation for combinations of k, i, n, Adaptive Tree Walk Protocol
 void runSimulation() {
+
   // For each different k stations ready
   for (int a = 0; a < numReadyStationsN; a++) {
     int k = numReadyStationsArr[a];
-    printf("Testing 100 cases of k=%d\n", k);
+    cout << "Testing 100 cases of k=" << k;
+    ATW_Statistics atwArr[600];
+    int atwIndex = 0;
     // 100 random combinations of k stations
     for (int b = 0; b < 100; b++) {
-      // if (b%10==0) printf("  test #%d\n", b);
       generateRandomFrames(k);
       // Probe starting on different levels i
       for (int c = 0; c < probeLevelsN; c++) {
         int startingLevel = probeLevelsArr[c];
         ATW_Statistics atw = probeTree(startingLevel, k);
-        // Compute average
-        
+        atwArr[atwIndex++] = atw;
       }
     }
+    // Compute average of 100 tests over 6 starting levels each
+    double total, success;
+    total = success = 0;
+    for (int i = 0; i < 600; i++) {
+      total += atwArr[i].totalProbes;
+      success += atwArr[i].successfulProbes;
+    }
+    total /= 600;
+    success /= 600;
+    cout << "\tSuccess!" << endl;
+    cout << " Avg successful probes: " << success << "  Avg total probes: " << total << endl << endl;
   }
 }
 
