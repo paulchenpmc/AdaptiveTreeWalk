@@ -1,8 +1,9 @@
 #include <iostream>
+#include <vector>
 #include <stdio.h>
 using namespace std;
 
-#define NUM_STATIONS 8  // N
+#define NUM_STATIONS 1024  // N
 
 // Global variables
 int stationsArr[NUM_STATIONS];
@@ -22,19 +23,26 @@ void generateRandomFrames(int k) {
     stationsArr[i] = 0;
 
   // Randomly ready k stations
-  // int numLoops = 0;
+  vector<int> randomStationsVec(NUM_STATIONS);
+  for (int i = 0; i < randomStationsVec.size(); i++)
+    randomStationsVec[i] = i;
   int numReady = 0;
-  for (int i = 0; true; i++) {
-    if (numReady == k) break;
-    i = i % NUM_STATIONS; // Reset i when end of array reached, keep looping until k stations ready
-    if (stationsArr[i]) continue; // Skip stations that are already set to 1
-    stationsArr[i] = rand() % 2;
-    if (stationsArr[i]) numReady++; // Track # stations ready
-    // numLoops++;
+  for (int j = 0; numReady != k; j++) {
+    j = j % randomStationsVec.size();
+    int selected = rand() % randomStationsVec.size();
+    stationsArr[randomStationsVec[selected]] = 1;
+    randomStationsVec.erase(randomStationsVec.begin()+selected);
+    numReady++;
   }
-  // cout << "Num loops: " << numLoops << endl;
-  // for (int i = 0; i < NUM_STATIONS; i++)
-  //   cout << stationsArr[i] << endl;
+
+  // Sanity check because I'm scared of the rand function
+  int errorcheck = 0;
+  for (int i = 0; i < NUM_STATIONS; i++)
+    if (stationsArr[i] == 1) errorcheck++;
+  if (errorcheck != k) {
+    cout << "\nERROR IN generateRandomFrames\n" << endl;
+    exit(1);
+  }
 }
 
 // Probes tree and tracks: collisions, # probes, # idle
@@ -46,10 +54,10 @@ void runSimulation() {
   // For each different k stations ready
   for (int a = 0; a < numReadyStationsN; a++) {
     int k = numReadyStations[a];
-    printf("k=%d\n", k);
+    printf("Testing 100 cases of k=%d\n", k);
     // 100 random combinations of k stations
     for (int b = 0; b < 100; b++) {
-      if (b%10==0) printf("  test #%d\n", b);
+      // if (b%10==0) printf("  test #%d\n", b);
       generateRandomFrames(k);
       // Probe starting on different levels i
       for (int c = 0; c < probeLevelsN; c++) {
@@ -66,5 +74,6 @@ void runSimulation() {
 int main() {
   cout << "Starting simulation..." << endl;
   srand(time(NULL)); // Makes rand() more random
+  // generateRandomFrames(4);
   runSimulation();
 }
