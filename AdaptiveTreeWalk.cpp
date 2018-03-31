@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <stdio.h>
+#include <cmath>
 using namespace std;
 
 #define NUM_STATIONS 8  // N
@@ -63,7 +63,7 @@ void generateRandomFrames(int k) {
 // Probes tree and tracks: collisions, # probes, # idle
 ATW_Statistics probeTree(int startingLevel, int stationsReady) {
   ATW_Statistics atw = initializeATW_Statistics();
-  int fractionOfTree = NUM_STATIONS / (startingLevel+1);
+  int fractionOfTree = NUM_STATIONS / (pow(2, startingLevel));
   cout << "Entered probetree" << endl;
   int ignoreSubtreeArr[NUM_STATIONS] = {0};
   while (atw.successfulProbes != stationsReady) {
@@ -74,7 +74,7 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
       // Go through subtree and check for ready frames
       for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
         framesReady += stationsArr[i];
-        if (stationsArr[i] == 1) successIndex = i; // Saves index to remove ready state if probe success
+        if (stationsArr[i] == 1) successIndex = i; // Saves index to remove ready staton if probe success
         if (framesReady >= 2) break; // Collision
       }
 
@@ -131,7 +131,7 @@ int main() {
   stationsArr[1] = 1;
   stationsArr[5] = 1;
   stationsArr[6] = 1;
-  ATW_Statistics atw = probeTree(3, 3);
+  ATW_Statistics atw = probeTree(0, 3);
   cout << "\nSuccess probes: " << atw.successfulProbes << endl;
   cout << "Collision probes: " << atw.collisionProbes << endl;
   cout << "Idle probes: " << atw.idleProbes << endl;
