@@ -3,7 +3,7 @@
 #include <cmath>
 using namespace std;
 
-#define NUM_STATIONS 8  // N
+#define NUM_STATIONS 1024  // N
 
 // Global variables
 int stationsArr[NUM_STATIONS] = {0};
@@ -63,18 +63,22 @@ void generateRandomFrames(int k) {
 // Probes tree and tracks: collisions, # probes, # idle
 ATW_Statistics probeTree(int startingLevel, int stationsReady) {
   ATW_Statistics atw = initializeATW_Statistics();
+  int tempStationsArr[NUM_STATIONS];
+  copy(begin(stationsArr), end(stationsArr), begin(tempStationsArr));
+
   int fractionOfTree = NUM_STATIONS / (pow(2, startingLevel));
-  cout << "Entered probetree" << endl;
+  // cout << "Entered probetree" << endl;
   int ignoreSubtreeArr[NUM_STATIONS] = {0};
   while (atw.successfulProbes != stationsReady) {
-    cout << "Tree fraction: " << fractionOfTree << endl;
+    // cout << "Begin loop successfulProbes: " << atw.successfulProbes << "  stationsready: " << stationsReady<< endl;
+    // cout << "Begin loop Tree fraction: " << fractionOfTree << endl;
     for (int subtree = 0; subtree < (NUM_STATIONS/fractionOfTree); subtree++) {
       int framesReady = 0;
       int successIndex = 0;
       // Go through subtree and check for ready frames
       for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
-        framesReady += stationsArr[i];
-        if (stationsArr[i] == 1) successIndex = i; // Saves index to remove ready staton if probe success
+        framesReady += tempStationsArr[i];
+        if (tempStationsArr[i] == 1) successIndex = i; // Saves index to remove ready staton if probe success
         if (framesReady >= 2) break; // Collision
       }
 
@@ -82,18 +86,19 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
       if (framesReady == 0 && ignoreSubtreeArr[subtree*fractionOfTree] != 1) {
         atw.idleProbes++;
       } else if (framesReady == 1) {
-        atw.successfulProbes++;
-        stationsArr[successIndex] = 0;
+        atw.successfulProbes += 1;
+        tempStationsArr[successIndex] = 0;
         for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
           ignoreSubtreeArr[i] = 1;
         }
-        cout << "success index: " << successIndex << endl;
+        // cout << "success index: " << successIndex << endl;
       } else if (framesReady == 2) {
         atw.collisionProbes++;
       }
-      cout << "chunk " << subtree+1 << " framesReady: " << framesReady << endl;
+      // cout << "chunk " << subtree+1 << " framesReady: " << framesReady << endl;
     }
-    cout << "successfulProbes: " << atw.successfulProbes << endl << endl;
+    // cout << "End loop successfulProbes: " << atw.successfulProbes << "  stationsready: " << stationsReady << endl;
+    // cout << "End loop Tree fraction after division: " << fractionOfTree << endl << endl;
     fractionOfTree /= 2;
   }
   return atw;
@@ -114,6 +119,7 @@ void runSimulation() {
         int startingLevel = probeLevelsArr[c];
         ATW_Statistics atw = probeTree(startingLevel, k);
         // Compute average
+        
       }
     }
   }
@@ -125,15 +131,15 @@ void runSimulation() {
 int main() {
   cout << "Starting simulation..." << endl;
   srand(time(NULL)); // Makes rand() more random
-  //runSimulation();
+  runSimulation();
 
   // Carey's example
-  stationsArr[1] = 1;
-  stationsArr[5] = 1;
-  stationsArr[6] = 1;
-  ATW_Statistics atw = probeTree(0, 3);
-  cout << "\nSuccess probes: " << atw.successfulProbes << endl;
-  cout << "Collision probes: " << atw.collisionProbes << endl;
-  cout << "Idle probes: " << atw.idleProbes << endl;
-  cout << "Total probes: " << atw.totalProbes << endl;
+  // stationsArr[1] = 1;
+  // stationsArr[5] = 1;
+  // stationsArr[6] = 1;
+  // ATW_Statistics atw = probeTree(0, 3);
+  // cout << "\nSuccess probes: " << atw.successfulProbes << endl;
+  // cout << "Collision probes: " << atw.collisionProbes << endl;
+  // cout << "Idle probes: " << atw.idleProbes << endl;
+  // cout << "Total probes: " << atw.totalProbes << endl;
 }
