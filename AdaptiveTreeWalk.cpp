@@ -7,14 +7,25 @@ using namespace std;
 
 // Global variables
 int stationsArr[NUM_STATIONS];
-int numReadyStations[] = {1,2,4,8,16,32,64,128,256,512,1024};  // K
+int numReadyStationsArr[] = {1,2,4,8,16,32,64,128,256,512,1024};  // K
 int numReadyStationsN = 11;
-int probeLevels[] = {0,2,4,6,8,10};  // I
+int probeLevelsArr[] = {0,2,4,6,8,10};  // I
 int probeLevelsN = 6;
-int numProbes;
+
+struct ATW_Statistics {
+  int totalProbes;
+  int successfulProbes;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
+
+ATW_Statistics initializeATW_Statistics() {
+  ATW_Statistics atw;
+  atw.totalProbes = 0;
+  atw.successfulProbes = 0;
+  return atw;
+}
 
 // Randomly readies k stations for sending
 void generateRandomFrames(int k) {
@@ -40,7 +51,7 @@ void generateRandomFrames(int k) {
   for (int i = 0; i < NUM_STATIONS; i++)
     if (stationsArr[i] == 1) errorcheck++;
   if (errorcheck != k) {
-    cout << "\nERROR IN generateRandomFrames\n" << endl;
+    cout << "\nERROR in generateRandomFrames, k stations not ready!\n" << endl;
     exit(1);
   }
 }
@@ -53,7 +64,7 @@ int probeTree(int startingLevel) {
 void runSimulation() {
   // For each different k stations ready
   for (int a = 0; a < numReadyStationsN; a++) {
-    int k = numReadyStations[a];
+    int k = numReadyStationsArr[a];
     printf("Testing 100 cases of k=%d\n", k);
     // 100 random combinations of k stations
     for (int b = 0; b < 100; b++) {
@@ -61,7 +72,7 @@ void runSimulation() {
       generateRandomFrames(k);
       // Probe starting on different levels i
       for (int c = 0; c < probeLevelsN; c++) {
-        int startingLevel = probeLevels[c];
+        int startingLevel = probeLevelsArr[c];
         probeTree(startingLevel);
       }
     }
@@ -74,6 +85,5 @@ void runSimulation() {
 int main() {
   cout << "Starting simulation..." << endl;
   srand(time(NULL)); // Makes rand() more random
-  // generateRandomFrames(4);
   runSimulation();
 }
