@@ -65,25 +65,33 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
   ATW_Statistics atw = initializeATW_Statistics();
   int fractionOfTree = NUM_STATIONS / (startingLevel+1);
   cout << "Entered probetree" << endl;
+  int ignoreSubtreeArr[NUM_STATIONS] = {0};
   while (atw.successfulProbes != stationsReady) {
     cout << "Tree fraction: " << fractionOfTree << endl;
     for (int subtree = 0; subtree < (NUM_STATIONS/fractionOfTree); subtree++) {
       int framesReady = 0;
       int successIndex = 0;
+      // Go through subtree and check for ready frames
       for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
         framesReady += stationsArr[i];
         if (stationsArr[i] == 1) successIndex = i; // Saves index to remove ready state if probe success
         if (framesReady >= 2) break; // Collision
       }
-      if (framesReady == 0) atw.idleProbes++;
-      else if (framesReady == 1) {
+
+      if (ignoreSubtreeArr[subtree*fractionOfTree] != 1) atw.totalProbes++;
+      if (framesReady == 0 && ignoreSubtreeArr[subtree*fractionOfTree] != 1) {
+        atw.idleProbes++;
+      } else if (framesReady == 1) {
         atw.successfulProbes++;
         stationsArr[successIndex] = 0;
+        for (int i = subtree*fractionOfTree; i < (subtree*fractionOfTree+fractionOfTree); i++) {
+          ignoreSubtreeArr[i] = 1;
+        }
         cout << "success index: " << successIndex << endl;
+      } else if (framesReady == 2) {
+        atw.collisionProbes++;
       }
-      else if (framesReady == 2) atw.collisionProbes++;
       cout << "chunk " << subtree+1 << " framesReady: " << framesReady << endl;
-      atw.totalProbes++;
     }
     cout << "successfulProbes: " << atw.successfulProbes << endl << endl;
     fractionOfTree /= 2;
@@ -123,7 +131,7 @@ int main() {
   stationsArr[1] = 1;
   stationsArr[5] = 1;
   stationsArr[6] = 1;
-  ATW_Statistics atw = probeTree(0, 3);
+  ATW_Statistics atw = probeTree(3, 3);
   cout << "\nSuccess probes: " << atw.successfulProbes << endl;
   cout << "Collision probes: " << atw.collisionProbes << endl;
   cout << "Idle probes: " << atw.idleProbes << endl;
