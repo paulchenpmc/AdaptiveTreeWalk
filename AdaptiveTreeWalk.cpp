@@ -13,6 +13,8 @@ int numReadyStationsN = 11;
 int probeLevelsArr[] = {0,2,4,6,8,10};  // I
 int probeLevelsN = 6;
 double statsArrSuccess[6][11];
+double statsArrCollision[6][11];
+double statsArrIdle[6][11];
 double statsArrTotal[6][11];
 
 struct ATW_Statistics {
@@ -122,17 +124,20 @@ void runSimulation() {
         atwArr[atwIndex++] = atw;
       }
     }
-    // Compute average of 100 tests of k over 6 starting levels each
+
+    // Track global statistics for each combination of i and k
     for (int i = 0; i < 600; i++) {
       statsArrSuccess[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].successfulProbes;
       statsArrTotal[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].totalProbes;
+      statsArrCollision[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].collisionProbes;
+      statsArrIdle[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].idleProbes;
     }
     cout << "\tSuccess!" << endl;
   }
   cout << endl;
 }
 
-void printStats() {
+void printOnlySuccessStats() {
   cout << "       |\t\t\t\t  Ready stations\t\t\t\t    |" << endl;
   cout << "Level  |";
   for (int i = 0; i < 11; i++) {
@@ -150,6 +155,22 @@ void printStats() {
   }
 }
 
+void printAllStats() {
+  cout << "\nCSV:\n\n";
+  cout << "i,k,% idle,% success,% collision,total" << endl;
+  for (int r = 0; r < 6; r++) {
+    for (int c = 0; c < 11; c++) {
+      cout << probeLevelsArr[r];
+      cout << "," << numReadyStationsArr[c];
+      cout << "," << statsArrIdle[r][c]/statsArrTotal[r][c];
+      cout << "," << statsArrSuccess[r][c]/statsArrTotal[r][c];
+      cout << "," << statsArrCollision[r][c]/statsArrTotal[r][c];
+      cout << "," << statsArrTotal[r][c]/100;
+      cout << endl;
+    }
+  }
+}
+
 // End of functions
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -157,16 +178,6 @@ int main() {
   cout << "Starting simulation..." << endl;
   srand(time(NULL)); // Makes rand() more random
   runSimulation();
-  printStats();
-
-  // Carey's example
-  // Just comment out runSimulation and uncomment below block
-  // stationsArr[1] = 1;
-  // stationsArr[5] = 1;
-  // stationsArr[6] = 1;
-  // ATW_Statistics atw = probeTree(0, 3);
-  // cout << "\nSuccess probes: " << atw.successfulProbes << endl;
-  // cout << "Collision probes: " << atw.collisionProbes << endl;
-  // cout << "Idle probes: " << atw.idleProbes << endl;
-  // cout << "Total probes: " << atw.totalProbes << endl;
+  printOnlySuccessStats();
+  // printAllStats();
 }
