@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <iomanip>
 using namespace std;
 
 #define NUM_STATIONS 1024  // N
@@ -126,25 +127,24 @@ void runSimulation() {
       statsArrSuccess[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].successfulProbes;
       statsArrTotal[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].totalProbes;
     }
-
-    // double total, success;
-    // total = success = 0;
-    // for (int i = 0; i < 600; i++) {
-    //   total += atwArr[i].totalProbes;
-    //   success += atwArr[i].successfulProbes;
-    // }
-    // total /= 600;
-    // success /= 600;
-    // cout << " Avg successful probes: " << success << "  Avg total probes: " << total << endl << endl;
     cout << "\tSuccess!" << endl;
   }
   cout << endl;
 }
 
 void printStats() {
+  cout << "       |\t\t\t\t  Ready stations\t\t\t\t    |" << endl;
+  cout << "Level  |";
+  for (int i = 0; i < 11; i++) {
+    cout << numReadyStationsArr[i];
+    if (i != 10) cout << "\t";
+  }
+  cout << "|";
+  cout << "\n---------------------------------------------------------------------------------------------\n";
   for (int r = 0; r < 6; r++) {
+    cout << probeLevelsArr[r];
     for (int c = 0; c < 11; c++) {
-      cout << statsArrSuccess[r][c]/statsArrTotal[r][c] << " ";
+      cout << "\t" << setprecision(3) << fixed << statsArrSuccess[r][c]/statsArrTotal[r][c];
     }
     cout << endl;
   }
