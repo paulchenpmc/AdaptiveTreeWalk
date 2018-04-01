@@ -142,7 +142,12 @@ void runSimulation() {
 }
 
 void printStats() {
-  
+  for (int r = 0; r < 6; r++) {
+    for (int c = 0; c < 11; c++) {
+      cout << statsArrSuccess[r][c]/statsArrTotal[r][c] << " ";
+    }
+    cout << endl;
+  }
 }
 
 // End of functions
@@ -152,8 +157,10 @@ int main() {
   cout << "Starting simulation..." << endl;
   srand(time(NULL)); // Makes rand() more random
   runSimulation();
+  printStats();
 
   // Carey's example
+  // Just comment out runSimulation and uncomment below block
   // stationsArr[1] = 1;
   // stationsArr[5] = 1;
   // stationsArr[6] = 1;
