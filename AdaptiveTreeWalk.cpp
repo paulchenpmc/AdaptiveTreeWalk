@@ -11,23 +11,29 @@ int numReadyStationsArr[] = {1,2,4,8,16,32,64,128,256,512,1024};  // K
 int numReadyStationsN = 11;
 int probeLevelsArr[] = {0,2,4,6,8,10};  // I
 int probeLevelsN = 6;
+double statsArrSuccess[6][11];
+double statsArrTotal[6][11];
 
 struct ATW_Statistics {
   int totalProbes;
   int successfulProbes;
   int collisionProbes;
   int idleProbes;
+  int startingLevel;
+  int readyStations;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Functions
 
-ATW_Statistics initializeATW_Statistics() {
+ATW_Statistics initializeATW_Statistics(int startingLevel, int readyStations) {
   ATW_Statistics atw;
   atw.totalProbes = 0;
   atw.successfulProbes = 0;
   atw.collisionProbes = 0;
   atw.idleProbes = 0;
+  atw.startingLevel = startingLevel/2;
+  atw.readyStations = log2(readyStations);
   return atw;
 }
 
@@ -62,7 +68,7 @@ void generateRandomFrames(int k) {
 
 // Probes tree and tracks: collisions, # probes, # idle
 ATW_Statistics probeTree(int startingLevel, int stationsReady) {
-  ATW_Statistics atw = initializeATW_Statistics();
+  ATW_Statistics atw = initializeATW_Statistics(startingLevel, stationsReady);
   int tempStationsArr[NUM_STATIONS];
   copy(begin(stationsArr), end(stationsArr), begin(tempStationsArr));
 
@@ -99,7 +105,6 @@ ATW_Statistics probeTree(int startingLevel, int stationsReady) {
 
 // Runs testing simulation for combinations of k, i, n, Adaptive Tree Walk Protocol
 void runSimulation() {
-
   // For each different k stations ready
   for (int a = 0; a < numReadyStationsN; a++) {
     int k = numReadyStationsArr[a];
@@ -116,18 +121,28 @@ void runSimulation() {
         atwArr[atwIndex++] = atw;
       }
     }
-    // Compute average of 100 tests over 6 starting levels each
-    double total, success;
-    total = success = 0;
+    // Compute average of 100 tests of k over 6 starting levels each
     for (int i = 0; i < 600; i++) {
-      total += atwArr[i].totalProbes;
-      success += atwArr[i].successfulProbes;
+      statsArrSuccess[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].successfulProbes;
+      statsArrTotal[atwArr[i].startingLevel][atwArr[i].readyStations] += atwArr[i].totalProbes;
     }
-    total /= 600;
-    success /= 600;
+
+    // double total, success;
+    // total = success = 0;
+    // for (int i = 0; i < 600; i++) {
+    //   total += atwArr[i].totalProbes;
+    //   success += atwArr[i].successfulProbes;
+    // }
+    // total /= 600;
+    // success /= 600;
+    // cout << " Avg successful probes: " << success << "  Avg total probes: " << total << endl << endl;
     cout << "\tSuccess!" << endl;
-    cout << " Avg successful probes: " << success << "  Avg total probes: " << total << endl << endl;
   }
+  cout << endl;
+}
+
+void printStats() {
+  
 }
 
 // End of functions
